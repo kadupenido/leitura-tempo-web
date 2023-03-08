@@ -1,0 +1,11 @@
+body {
+    padding-top: 2rem;
+  }
+
+  canvas {
+    min-height: 300px;
+  }
+  
+  .row {
+    margin-top: 10px;
+  }

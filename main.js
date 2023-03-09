@@ -17,15 +17,15 @@ function getData() {
         var tempMin = (Math.round(data.temperatura.minima * 10) / 10) + '°C';
         var umidMin = (Math.round(data.umidade.minima * 10) / 10) + '%';
 
-        var tempMax = (Math.round(data.temperatura.maxima * 10) / 10) + '°C';
-        var umidMax = (Math.round(data.umidade.maxima * 10) / 10) + '%';
-
         Tvalues.push(...data.leituras.map(f => f.temperatura));
         Hvalues.push(...data.leituras.map(f => f.umidade));
         timeStamp.push(...data.leituras.map(f => moment(f.data).format('DD/MM/YYYY HH:mm')));
 
-        $('#temp').text('Atual: ' + tempMin);
-        $('#umid').text('Atual: ' + umidMin);
+        var temp = (Math.round(Tvalues[Tvalues.length -1] * 10) / 10) + '°C';
+        var umid = (Math.round(Hvalues[Hvalues.length -1] * 10) / 10) + '°C';
+
+        $('#temp').text('Atual: ' + temp);
+        $('#umid').text('Atual: ' + umid);
 
         $('#tempMax').text('Maxima: ' + tempMax);
         $('#umidMax').text('Maxima: ' + umidMax);
@@ -46,15 +46,15 @@ function showGraph() {
             datasets: [{
                 label: "Temperatura",
                 fill: false,  //Try with true
-                backgroundColor: 'rgba( 243, 156, 18 , 1)', //Dot marker color
-                borderColor: 'rgba( 243, 156, 18 , 1)', //Graph Line Color
+                backgroundColor: '#FF3853', //Dot marker color
+                borderColor: '#FF3853', //Graph Line Color
                 data: Tvalues,
             },
             {
                 label: "Umidade",
                 fill: false,  //Try with true
-                backgroundColor: 'rgba(156, 18, 243 , 1)', //Dot marker color
-                borderColor: 'rgba(156, 18, 243 , 1)', //Graph Line Color
+                backgroundColor: '#00B050', //Dot marker color
+                borderColor: '#00B050', //Graph Line Color
                 data: Hvalues,
             }],
         },
@@ -64,15 +64,12 @@ function showGraph() {
                 text: ""
             },
             maintainAspectRatio: false,
-            elements: {
-                line: {
-                    tension: 0.5 //Smoothening (Curved) of data lines
-                }
-            },
             scales: {
                 yAxes: [{
+                    display: true,
                     ticks: {
-                        beginAtZero: true
+                        suggestedMin: 15,  
+                        suggestedMax: 80,  
                     }
                 }]
             }

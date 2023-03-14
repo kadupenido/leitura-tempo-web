@@ -5,7 +5,10 @@ var Hvalues = [];
 var timeStamp = [];
 
 function getData() {
-    $.get(url, function (data, status) {
+
+    var url2 = url + '?dataInicio=' + $('#dataInicio').val() + '&dataFim=' + $('#dataFim').val();
+
+    $.get(url2, function (data, status) {
 
         Tvalues = [];
         Hvalues = [];
@@ -21,8 +24,8 @@ function getData() {
         Hvalues.push(...data.leituras.map(f => f.umidade));
         timeStamp.push(...data.leituras.map(f => moment(f.data).format('DD/MM/YYYY HH:mm')));
 
-        var temp = (Math.round(Tvalues[Tvalues.length -1] * 10) / 10) + '°C';
-        var umid = (Math.round(Hvalues[Hvalues.length -1] * 10) / 10) + '°C';
+        var temp = (Math.round(Tvalues[Tvalues.length - 1] * 10) / 10) + '°C';
+        var umid = (Math.round(Hvalues[Hvalues.length - 1] * 10) / 10) + '°C';
 
         $('#temp').text('Atual: ' + temp);
         $('#umid').text('Atual: ' + umid);
@@ -68,8 +71,8 @@ function showGraph() {
                 yAxes: [{
                     display: true,
                     ticks: {
-                        suggestedMin: 15,  
-                        suggestedMax: 80,  
+                        suggestedMin: 15,
+                        suggestedMax: 80,
                     }
                 }]
             }
@@ -78,8 +81,12 @@ function showGraph() {
 
 }
 
-setInterval(getData, 1000 * 60);
+setInterval(getData, 1000 * 15);
 
 $(document).ready(function () {
+
+    $('#dataInicio').val(moment().subtract(8, 'Hour').format('YYYY-MM-DD HH:mm'));
+    $('#dataFim').val(moment().format('YYYY-MM-DD HH:mm'));
+
     getData();
 });

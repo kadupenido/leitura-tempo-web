@@ -1,93 +1,90 @@
-var url = 'https://leitura-tempo.onrender.com/leitura';
-
-var Tvalues = [];
-var Hvalues = [];
-var timeStamp = [];
-
 function getData() {
 
-    var url2 = url + '?dataInicio=' + $('#dataInicio').val() + '&dataFim=' + $('#dataFim').val();
+  var dataIni = moment($('#dataInicio').val()).toISOString();
+  var dataFim = moment($('#dataFim').val()).toISOString();
 
-    $.get(url2, function (data, status) {
+  var url = 'https://leitura-tempo.onrender.com/leitura?dataInicio=' + dataIni + '&dataFim=' + dataFim;
 
-        Tvalues = [];
-        Hvalues = [];
-        timeStamp = [];
+  $.get(url, function (data, status) {
 
-        var tempMax = (Math.round(data.temperatura.maxima * 10) / 10) + '°C';
-        var umidMax = (Math.round(data.umidade.maxima * 10) / 10) + '%';
+    var Tvalues = [];
+    var Hvalues = [];
+    var timeStamp = [];
 
-        var tempMin = (Math.round(data.temperatura.minima * 10) / 10) + '°C';
-        var umidMin = (Math.round(data.umidade.minima * 10) / 10) + '%';
+    var tempMax = (Math.round(data.temperatura.maxima * 10) / 10) + '°C';
+    var umidMax = (Math.round(data.umidade.maxima * 10) / 10) + '%';
 
-        Tvalues.push(...data.leituras.map(f => f.temperatura));
-        Hvalues.push(...data.leituras.map(f => f.umidade));
-        timeStamp.push(...data.leituras.map(f => moment(f.data).format('DD/MM/YYYY HH:mm')));
+    var tempMin = (Math.round(data.temperatura.minima * 10) / 10) + '°C';
+    var umidMin = (Math.round(data.umidade.minima * 10) / 10) + '%';
 
-        var temp = (Math.round(Tvalues[Tvalues.length - 1] * 10) / 10) + '°C';
-        var umid = (Math.round(Hvalues[Hvalues.length - 1] * 10) / 10) + '°C';
+    Tvalues.push(...data.leituras.map(f => (Math.round(f.temperatura * 10) / 10)));
+    Hvalues.push(...data.leituras.map(f => (Math.round(f.umidade * 10) / 10)));
+    timeStamp.push(...data.leituras.map(f => moment(f.data).format('DD/MM/YYYY HH:mm')));
 
-        $('#temp').text('Atual: ' + temp);
-        $('#umid').text('Atual: ' + umid);
+    var temp = (Math.round(Tvalues[Tvalues.length - 1] * 10) / 10) + '°C';
+    var umid = (Math.round(Hvalues[Hvalues.length - 1] * 10) / 10) + '°C';
 
-        $('#tempMax').text('Maxima: ' + tempMax);
-        $('#umidMax').text('Maxima: ' + umidMax);
+    $('#temp').text('Atual: ' + temp);
+    $('#umid').text('Atual: ' + umid);
 
-        $('#tempMin').text('Minima: ' + tempMin);
-        $('#umidMin').text('Minima: ' + umidMin);
+    $('#tempMax').text('Maxima: ' + tempMax);
+    $('#umidMax').text('Maxima: ' + umidMax);
 
-        showGraph();
-    });
-}
+    $('#tempMin').text('Minima: ' + tempMin);
+    $('#umidMin').text('Minima: ' + umidMin);
 
-function showGraph() {
-    var ctx = document.getElementById("Chart").getContext('2d');
-    var Chart2 = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: timeStamp,
-            datasets: [{
-                label: "Temperatura",
-                fill: false,  //Try with true
-                backgroundColor: '#FF3853', //Dot marker color
-                borderColor: '#FF3853', //Graph Line Color
-                data: Tvalues,
-            },
-            {
-                label: "Umidade",
-                fill: false,  //Try with true
-                backgroundColor: '#00B050', //Dot marker color
-                borderColor: '#00B050', //Graph Line Color
-                data: Hvalues,
-            }],
+    var options = {
+      chart: {
+        type: 'area',
+        stacked: false,
+        height: 450,
+        zoom: {
+          type: 'x',
+          enabled: true,
+          autoScaleYaxis: true
         },
-        options: {
-            title: {
-                display: false,
-                text: ""
-            },
-            maintainAspectRatio: false,
-            scales: {
-                yAxes: [{
-                    display: true,
-                    ticks: {
-                        suggestedMin: 15,
-                        suggestedMax: 80,
-                    }
-                }]
-            }
+        toolbar: {
+          autoSelected: 'zoom'
         }
-    });
+      },
+      series: [{
+        name: 'Temperatura',
+        data: Tvalues
+      }, {
+        name: 'Umidade',
+        data: Hvalues
+      }],
+      dataLabels: {
+        enabled: false
+      },
+      markers: {
+        size: 0,
+      },
+      xaxis: {
+        categories: timeStamp
+      },
+      fill: {
+        type: 'gradient',
+        gradient: {
+          shadeIntensity: 1,
+          inverseColors: false,
+          opacityFrom: 0.5,
+          opacityTo: 0,
+          stops: [0, 90, 100]
+        },
+      },
+    }
 
+    var chart = new ApexCharts(document.querySelector("#chart_div"), options);
+
+    chart.render();
+  });
 }
-
-setInterval(getData, 1000 * 15);
 
 $(document).ready(function () {
 
-    $('#dataInicio').val(moment().subtract(8, 'Hour').format('YYYY-MM-DD HH:mm'));
-    $('#dataFim').val(moment().format('YYYY-MM-DD HH:mm'));
+  $('#dataInicio').val(moment().subtract(8, 'Hour').format('YYYY-MM-DD HH:mm'));
+  $('#dataFim').val(moment().format('YYYY-MM-DD HH:mm'));
 
-    getData();
+  getData();
 });
-
